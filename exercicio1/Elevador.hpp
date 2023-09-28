@@ -1,3 +1,6 @@
+#ifndef ELEVADOR_HPP
+#define ELEVADOR_HPP
+
 #include<iostream>
 
 class Elevador{
@@ -26,3 +29,5 @@ class Elevador{
     private:
 
 };
+
+#endif
