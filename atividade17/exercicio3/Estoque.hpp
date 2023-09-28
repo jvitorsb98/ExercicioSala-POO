@@ -8,7 +8,7 @@
 class Estoque{
 
     vector<Produto> listaProduto;
-
+    
 
 };
 
