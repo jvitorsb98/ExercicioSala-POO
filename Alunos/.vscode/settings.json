@@ -33,6 +33,7 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
+        "fstream": "cpp",
         "initializer_list": "cpp",
         "iosfwd": "cpp",
         "iostream": "cpp",
@@ -43,11 +44,6 @@
         "ostream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp",
-        "iomanip": "cpp",
-        "ctime": "cpp",
-        "fstream": "cpp",
-        "sstream": "cpp",
-        "set": "cpp"
+        "typeinfo": "cpp"
     }
 }
