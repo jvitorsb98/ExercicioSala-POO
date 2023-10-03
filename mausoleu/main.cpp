@@ -1,18 +1,12 @@
 #include <iostream>
-#include <string.h>
+#include <string>
 #include <vector>
-#include<fstream>
-#include<cctype>
+#include <fstream>
 using namespace std;
 
-void limpaTela() {
-    for (int i=0;i<20;i++)
-        cout << endl;
-};
-
-class Data{
+class Data {
     int dia, mes, ano;
-    public:
+public:
     string geraString() {
         string dataStr = to_string(dia);
         dataStr.append("/");
@@ -35,7 +29,7 @@ class Data{
 class paciente {
     string nome;
     Data dt_morte;
-    public:
+public:
     static paciente leDados() {
         paciente novoPaciente;
         cout << "Dados de um novo paciente" << endl;
@@ -55,7 +49,7 @@ class paciente {
     }
     void listaDados() {
         cout << "Paciente: " << getNome() << endl;
-        cout << "Falecido em " << getdtMorte().geraString();
+        cout << "Falecido em " << getdtMorte().geraString() << endl;
     }
     void setNome(string _nome) {
         nome = _nome;
@@ -73,65 +67,46 @@ class paciente {
     }
 };
 
-class Persistencia{
-    
-    public:
-
-        static void recuperaMausoleu(vector<mausoleu> &mausoleus){
-            ifstream inMausoleus;
-                inMausoleus.open("mausoleus.txt",ios_base::in);
-
-                if(inMausoleus.is_open()){
-                    while(inMausoleus.eof() == false){
-                        mausoleu mauso;
-                        string id;
-                        string localizacao;
-                        getline(inMausoleus,id);
-                        getline(inMausoleus,localizacao);
-                        if(id.length()>0){
-                            int idd = stoi(id);
-                            mauso.setId(idd);
-                            mauso.setLocalizacao(localizacao);
-                            mausoleus.push_back(mauso);
-                        }
-                    }
-                    inMausoleus.close();
-                }
-        }
-        
-};
-
 class mausoleu {
-
-
-    private:
-        int id;
-        static int contador;
-        string localizacao;
-        vector<paciente> pacientes;
-    public:
-    mausoleu(){
-        setContador(getContador()+1);
+    int id;
+    static int contador;
+    string localizacao;
+public:
+    vector<paciente> pacientes;
+    mausoleu() {
+        setContador(getContador() + 1);
         this->setId(getContador());
     }
-    static void setContador(int cont){
+    static void setContador(int cont) {
         contador = cont;
     }
-    static int getContador(){
+    static int getContador() {
         return contador;
     }
+
+    paciente buscaPaciente(string nome){
+
+        for(auto it=pacientes.begin() ; it!=pacientes.end() ; it++){
+            if(it->getNome() == nome){
+                return *it;
+            }
+        }
+        paciente pacient;
+        return pacient;
+    }
+
     static mausoleu leNovo() {
         mausoleu novoMausoleu = mausoleu();
-        cout << "Digite a localicacao do novo mausoleu: ";
+        cout << "Digite a localizacao do novo mausoleu: ";
         string loc;
         getline(cin, loc);
         novoMausoleu.setLocalizacao(loc);
         return novoMausoleu;
     }
-    int getId(){
+    int getId() {
         return this->id;
     }
-    void setId(int id){
+    void setId(int id) {
         this->id = id;
     }
     void listaDados() {
@@ -139,8 +114,8 @@ class mausoleu {
         cout << "Id " + to_string(getId()) << endl;
         cout << getLocalizacao() << endl;
         cout << "Lista de pacientes deste mausoleu: " << endl;
-        for (paciente p:pacientes) {
-            //listar cada paciente
+        for (paciente p : pacientes) {
+            p.listaDados();
         }
     }
     void setLocalizacao(string _localizacao) {
@@ -155,7 +130,7 @@ class mausoleu {
     }
 
     void listaPacientes() {
-        for (paciente p:pacientes) {
+        for (paciente p : pacientes) {
             cout << p.getNome() << endl;
         }
     }
@@ -163,9 +138,70 @@ class mausoleu {
 
 int mausoleu::contador = 0;
 
+class Persistencia {
+public:
+    static void recuperaMausoleu(vector<mausoleu> &mausoleus) {
+        ifstream inMausoleus;
+        inMausoleus.open("mausoleus.txt", ios_base::in);
+
+        if (inMausoleus.is_open()) {
+            while (!inMausoleus.eof()) {
+                mausoleu mauso;
+                string id;
+                string localizacao;
+                getline(inMausoleus, id);
+                getline(inMausoleus, localizacao);
+                if (id.length() > 0) {
+                    int idd = stoi(id);
+                    mauso.setId(idd);
+                    mauso.setLocalizacao(localizacao);
+                    mausoleus.push_back(mauso);
+                }
+            }
+            inMausoleus.close();
+        }
+
+        ifstream inPacientes;
+        inPacientes.open("pacientes.txt", ios_base::in);
+
+        if (inPacientes.is_open()) {
+            while (!inPacientes.eof()) {
+                paciente pacient;
+                string id;
+                string nome;
+                string data;
+                Data dt_Morte;
+                getline(inPacientes,id);
+                getline(inPacientes, nome);
+                getline(inPacientes, data);
+                
+                
+
+                if (id.length() > 0) {
+
+                    dt_Morte.setDia(stoi(data.substr(0,1)));
+                    dt_Morte.setMes(stoi(data.substr(3,4)));
+                    dt_Morte.setAno(stoi(data.substr(6)));
+
+                    pacient.setDtMorte(dt_Morte);
+                    pacient.setNome(nome);
+
+
+                    int idd = stoi(id);
+                    for(auto it=mausoleus.begin() ; it!= mausoleus.end() ; it++){
+                        if(it->getId()==idd){
+                            it->recepciona(pacient);
+                        }
+                    }
+                }
+            }
+            inMausoleus.close();
+        }
+
+    }
+};
+
 int main() {
-
-
     vector<mausoleu> mausoleus;
     Persistencia::recuperaMausoleu(mausoleus);
 
@@ -175,33 +211,103 @@ int main() {
         cout << "1. Incluir Mausoleu" << endl;
         cout << "2. Listar Mausoleus" << endl;
         cout << "3. Recepcionar paciente" << endl;
+        cout << "4. Busca Paciente " << endl;
+        cout << "5. Grava Dados " << endl;
         cout << "0. Sair" << endl;
         cout << "Digite opcao: ";
         cin >> op;
-        cin.ignore();
-        if (op==1) {
+        cin.ignore(); // Limpar o caractere de nova linha
+
+        if (op == 1) {
             mausoleu novo = mausoleu::leNovo();
             mausoleus.push_back(novo);
 
             ofstream outMausoleus;
-            outMausoleus.open("mausoleus.txt",ios_base::app);
-            if(outMausoleus.is_open()){
+            outMausoleus.open("mausoleus.txt", ios_base::app);
+            if (outMausoleus.is_open()) {
                 outMausoleus << novo.getId() << endl;
                 outMausoleus << novo.getLocalizacao() << endl;
                 outMausoleus.close();
             }
-
         }
-        if (op==2) {
-            for (mausoleu m:mausoleus) {
+        if (op == 2) {
+            cout << "------LISTA DE MAUSOLEUS------" << endl;
+            for (mausoleu m : mausoleus) {
                 m.listaDados();
             }
+            cout << "---------FIM DA LISTA---------" << endl;
         }
-        if (op==3) {
+        if (op == 3) {
+            int idBusca;
             paciente novoPac = paciente::leDados();
-            //localizar um mausoleu
-            //inserir paciente no mausoleu
+            cout << "------Paciente Criado------" << endl;
+            cout << "Digite o id do mausoleu : ";
+            cin >> idBusca;
+            cin.ignore(); // Limpar o caractere de nova linha
+
+            for (auto it = mausoleus.begin(); it != mausoleus.end(); it++) {
+                if (it->getId() == idBusca) {
+                    it->recepciona(novoPac);
+                    
+                    ofstream outPacientes;
+                        outPacientes.open("pacientes.txt", ios_base::app);
+                        if (outPacientes.is_open()) {
+                            outPacientes << it->getId() << endl;
+                            outPacientes << novoPac.getNome() << endl;
+                            outPacientes << novoPac.getdtMorte().geraString() << endl;
+                            outPacientes.close();
+                        }
+                }
+                
+            }
+        }
+        if (op==4){
+            string nome;
+            system("clear||cls");
+            cout << "Qual nome do paciente que deseja buscar ? ";
+            getline(cin,nome);
+            paciente pacienteBusca;
+
+            auto it=mausoleus.begin();
+            for( ; it!= mausoleus.end() ; it++){
+                pacienteBusca = it->buscaPaciente(nome);
+                if(pacienteBusca.getNome() == nome){
+                    pacienteBusca.listaDados();
+                }
+            }
+            if(it==mausoleus.end()){
+                cout << "Paciente não encontrado";
+            }
+        }
+        if(op==5){
+            ofstream escreveMausoleus;
+            escreveMausoleus.open("mausoleus.txt", ios_base::out);
+            if(escreveMausoleus.is_open()){
+                for(auto it=mausoleus.begin() ; it!=mausoleus.end() ; it++){
+                    escreveMausoleus << it->getId() << endl;
+                    escreveMausoleus << it->getLocalizacao() << endl;
+                }
+                escreveMausoleus.close();
+            }else{
+                cout << "Erro ao abrir arquivo" << endl;
+            }
+
+            ofstream escrevePacientes;
+            escrevePacientes.open("pacientes.txt", ios_base::out);
+                if(escrevePacientes.is_open()){
+                for(auto it=mausoleus.begin(); it!=mausoleus.end() ; it++){
+                    for(auto itera=it->pacientes.begin() ; itera!=it->pacientes.end() ; itera++){
+                        escrevePacientes << it->getId() << endl << endl;
+                        escrevePacientes << itera->getNome() << endl;
+                        escrevePacientes << itera->getdtMorte().geraString()  << endl;
+                    }
+                escrevePacientes.close();
+                }
+            }else{
+                cout << "Erro ao abrir arquivo" << endl;
+            }
         }
     } while (op != 0);
+
     return 0;
 }
